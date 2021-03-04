@@ -6,8 +6,8 @@ REDIRECT_URL = '/interfax/'
 
 class AccessNewsCreationMiddleware:
     """
-        При побращении к странице CREATE_NEWS_ADDRESS проверяет есть ли у ползователя разрешение на создание новостей.
-        Если нет, то перенаправляет пользователя на REDIRECT_URL.
+    При побращении к странице CREATE_NEWS_ADDRESS проверяет есть ли у ползователя разрешение на создание новостей.
+    Если нет, то перенаправляет пользователя на REDIRECT_URL.
     """
 
     def __init__(self, get_response):
