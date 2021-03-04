@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Данные пользователя</title>
+</head>
+<body>
+    <h2>Данные пользователя</h2>
+    <p>Имя - {{ profile_details.first_name }}</p>
+    <p>Фамилия - {{ profile_details.last_name }}</p>
+    <p>Город - {{ profile_details.profile.city }}</p>
+    <p>Телефон - {{ profile_details.profile.phone_number }}</p>
+
+    {% if access_to_create_news %}
+        <p>Количество созданных новостей - {{ profile_details.profile.written_news_quantity }}</p>
+    {% endif %}
+    <p>Имя пользователя {{ profile_details.username }}</p>
+    {% if access_to_create_news %}
+        <p><a href="{% url 'create_news' %}">Создать новость</a></p>
+    {% endif %}
+    <p><a href="{{ previous_page }}">Назад</a> </p>
+</body>
+</html>

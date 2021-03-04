@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Создать новость</title>
+</head>
+<h2>Создать новость</h2>
+<body>
+
+<form method="post" action="{% url 'create_news' %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <p><input name="tags" placeholder="Укажите теги"></p>
+    <p><i>* Новость может не иметь тега.</i></p>
+    <p><i>** Если у вас несколько тегов, то их нужно перечислить через пробел: ММВБ торги итоги</i></p>
+    <button type="submit">Опубликовать</button>
+</form>
+
+
+<br><br>
+<p><a href="{% url 'profile' pk=request.user.id %}">Назад к профилю</a></p>
+<a href="{% url 'interfax' %}">Вернуться к ленте новостей</a>
+
+</body>
+</html>

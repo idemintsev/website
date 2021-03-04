@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Аутентификация</title>
+</head>
+<body>
+<h2>Страница входа</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Войти</button>
+</form>
+<p>Если у вас нет аккаунта, вы можете <a href="{% url 'registration' %}">зарегистрироваться</a>.</p>
+<a href="{% url 'interfax' %}">Вернуться на главную страницу</a>
+</body>
+</html>

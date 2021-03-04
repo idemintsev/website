@@ -1,0 +1,17 @@
+{% extends "news/general_template.html" %}
+
+{% block content %}
+    <h3>Новости экономики</h3>
+    {% if news_list %}
+    {% for news in news_list %}
+        {% if news.status == 'h' or not news.published %}
+        {% else %}
+        <p><a href="{% url 'news_details' pk=news.id %}">{{ news.created_date }} {{ news.title }}</a></p>
+        {% endif %}
+    {% endfor %}
+    <br><br><br><br><br>
+
+    {% else %}
+    <p>Нет новостей</p>
+    {% endif %}
+{% endblock %}

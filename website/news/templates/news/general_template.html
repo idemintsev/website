@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% block title %}<title>Интерфакс</title>{% endblock %}
+</head>
+<body>
+    {% block logo %}
+        <a href="{% url 'interfax' %}"><img src="{% static 'interfax.png'%}" alt="interfax_logo"></a>
+    {% endblock %}
+    {% block authorization %}
+        {% if not request.user.is_authenticated %}
+    <h4>Войдите в ваш аккаунт или <a href="{% url 'registration' %}">зарегистрируйтесь</a>.</h4>
+        <form method="post" action="{% url 'login' %}?next={{ request.path }}">
+            {% csrf_token %}
+            <input type="text" name="username" placeholder="Имя пользователя" required >
+            <input type="password" name="password" placeholder="Пароль" required >
+            <button type="submit">Войти</button>
+        </form>
+        {% else %}
+        <h4>Выполнен вход на сайт.
+            <a href="{% url 'profile' pk=request.user.id %}?next={{ request.path }}">
+                Личный кабинет {{ request.user.username }}</a>.</h4>
+        <a href="{% url 'logout' %}?next={{ request.path }}">Выйти</a>
+        {% endif %}
+    {% endblock %}
+
+    {% block content %}
+    {% endblock %}
+
+</body>
+</html>

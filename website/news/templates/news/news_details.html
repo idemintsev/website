@@ -1,0 +1,37 @@
+{% extends "news/general_template.html" %}
+
+{% block title %} <title>{{ news_details.title }}</title> {% endblock %}
+
+{% block content %}
+    <h3>{{ news_details.title }}</h3>
+    <p>Опубликовано: {{ news_details.created_date }}</p>
+    <p>Последнее изменение: {{ news_details.update_at }}</p>
+    <p>{{ news_details.content }}</p><br>
+    {% if news_details.tags.all %}
+        Теги:
+        {% for tag in news_details.tags.all %}
+        <a href="{% url 'news_list_by_tag' %}?sorted_by={{tag}}">#{{ tag }}</a>
+        {% endfor %}
+    {% endif %}
+    <p><a href="{% url 'interfax' %}">Вернуться к ленте новостей</a><br><br></p>
+
+    <p><b>Оставить комментарий</b></p>
+    <form method="post" action="">
+        {% csrf_token %}
+        {{ comments_form.as_p }}
+        <button type="submit">Опубликовать</button>
+    </form>
+
+    <br><br>
+    {% if news_details.comments.all %}
+        <p>Обсуждение новости</p>
+        {% for comment in news_details.comments.all %}
+        <p><b>{{ comment.name }}:</b></p>
+        <p>{{ comment.created_date }}</p>
+        <p>{{ comment.comment }}</p>
+        <br>
+        {% endfor %}
+    {% else %}
+    <p>Нет комментариев</p>
+    {% endif %}
+{% endblock %}
