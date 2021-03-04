@@ -7,7 +7,7 @@
 </head>
 <body>
     {% block logo %}
-        <a href="{% url 'interfax' %}"><img src="{% static 'interfax.png'%}" alt="interfax_logo"></a>
+        <a href="{% url 'interfax' %}"><img src="{% static 'imajes/interfax.png'%}" alt="interfax_logo"></a>
     {% endblock %}
     {% block authorization %}
         {% if not request.user.is_authenticated %}
