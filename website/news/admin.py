@@ -73,14 +73,33 @@ class UserInLine(admin.StackedInline):
 
 
 class WebUserAdmin(UserAdmin):
+    actions = ['mark_as_verified', 'mark_as_unverified']
+
+    def mark_as_verified(self, request, queryset):
+        for obj in queryset:
+            obj.profile.status = 'verified'
+            obj.profile.save()
+
+    def mark_as_unverified(self, request, queryset):
+        for obj in queryset:
+            obj.profile.status = 'unverified'
+            obj.profile.save()
+
+    mark_as_verified.short_description = 'Верифицированный пользователь'
+    mark_as_unverified.short_description = 'Неверифицированный пользователь'
+
     inlines = (UserInLine,)
-    list_display = ['id', 'username', 'first_name', 'last_name', 'news_creation']
+    list_display = ['id', 'username', 'first_name', 'last_name', 'news_creation', 'user_status']
     search_fields = ['username', 'first_name', 'last_name']
 
     def news_creation(self, obj):
         return obj.has_perm('website.add_news')
 
+    def user_status(self, obj):
+        return obj.profile.status
+
     news_creation.short_description = 'Создание новостей'
+    user_status.short_description = 'Статус пользователя'
 
 
 admin.site.unregister(User)

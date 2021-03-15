@@ -4,10 +4,15 @@ from django.urls import reverse
 
 
 class Profile(models.Model):
+    USER_STATUS = [
+        ('verified', 'Верифицированный'),
+        ('unverified', 'Неверифицированный')
+    ]
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     city = models.CharField(max_length=40, blank=True, verbose_name='Город')
     phone_number = models.CharField(max_length=20, blank=True, verbose_name='Номер телефона')
     written_news_quantity = models.IntegerField(default=0, verbose_name='Количество написанных новостей')
+    status = models.CharField(max_length=10, choices=USER_STATUS, default='unverified', verbose_name='Статус пользователя')
 
 
 class News(models.Model):
