@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.auth.models import User
 from django.contrib.auth.views import LoginView, LogoutView
 from django.http import HttpResponseRedirect
@@ -47,11 +47,11 @@ class NewsListView(generic.ListView):
     context_object_name = 'news_list'
 
     def get_queryset(self):
+        queryset = super().get_queryset()
         if self.request.GET.get('sorted_by'):
             tag_name = self.request.GET.get('sorted_by')
             queryset = News.objects.filter(tags__name=tag_name)
             return queryset
-        queryset = super().get_queryset()
         return queryset
 
 
@@ -119,17 +119,18 @@ class UserProfileView(LoginRequiredMixin, generic.DetailView):
 
     def get(self, request, *args, **kwargs):
         profile_details = request.user
-        access_to_create_news = profile_details.has_perm('news.add_news')
+        access_to_create_news = profile_details.has_perm('website.add_news')
+        verification_status = profile_details.profile.status
         previous_page = request.GET.get('next')
         if previous_page is None:
             previous_page = '/interfax/'
         return render(request, 'users/profile.html',
                       {'profile_details': profile_details, 'previous_page': previous_page,
-                       'access_to_create_news': access_to_create_news},
+                       'access_to_create_news': access_to_create_news, 'verification_status': verification_status},
                       )
 
 
-class NewsCreateFormView(generic.CreateView):
+class NewsCreateFormView(PermissionRequiredMixin, generic.CreateView):
     """
     Создание новостей.
     В post-запросе из шаблона create_news.html принимает заголовок и текст новости, а также тег, если он указан при
@@ -137,6 +138,7 @@ class NewsCreateFormView(generic.CreateView):
     """
     form_class = NewsForm
     template_name = 'news/create_news.html'
+    permission_required = ('website.add_news', 'website.view_news')
 
     def post(self, request, *args, **kwargs):
         tags = request.POST.get('tags')
@@ -146,36 +148,15 @@ class NewsCreateFormView(generic.CreateView):
             news.save()
             self.increase_news_quantity(request)
             if len(tags):
-                self.tags_handler(tags=tags, news=news)
+                tags_list = tags.split()
+                for _tag in tags_list:
+                    tag, created = Tag.objects.get_or_create(name=_tag)
+                    news.tags.add(tag)
+                    news.save()
             return HttpResponseRedirect(reverse('news_details', kwargs={'pk': news.id}))
 
         news = NewsForm()
         return render(request, 'news/create_news.html', {'news': news})
-
-    def tags_handler(self, tags, news):
-        """
-        На вход принимает tags (type str, пришли из формы create_news.html) и news (type obj News).
-        Раздялеят строку на отдельные теги. Проверяет существуют ли теги в БД. Если нет, то сохраняет их в БД.
-        Добавляет теги к новости.
-        """
-        tags_list = tags.split()
-        tags_in_db = Tag.objects.all()
-        tags_in_db_list = [str(tag) for tag in Tag.objects.all()]
-        print(tags_in_db_list)
-        if not tags_in_db.exists():
-            for tag in tags_list:
-                new_tag = Tag(name=tag)
-                new_tag.save()
-                news.tags.add(new_tag)
-        else:
-            for tag in tags_list:
-                if tag in tags_in_db_list:
-                    tag_for_add = tags_in_db.get(name=tag)
-                    news.tags.add(tag_for_add)
-                else:
-                    new_tag = Tag(name=tag)
-                    new_tag.save()
-                    news.tags.add(new_tag)
 
     def increase_news_quantity(self, request):
         """
