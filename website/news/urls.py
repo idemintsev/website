@@ -1,7 +1,7 @@
 from django.urls import path
 
 from news.views import (
-    register_user, NewsListView, NewsDetailsView, Logout, AuthView, UserProfileView, NewsCreateFormView,
+    RegisterUser, NewsListView, NewsDetailsView, Logout, AuthView, UserProfileView, NewsCreateFormView,
 )
 
 urlpatterns = [
@@ -9,7 +9,7 @@ urlpatterns = [
     path('interfax/', NewsListView.as_view(), name='interfax'),
     path('interfax/<int:pk>/', NewsDetailsView.as_view(), name='news_details'),
     path('interfax/create_news/', NewsCreateFormView.as_view(), name='create_news'),
-    path('registration/', register_user, name='registration'),
+    path('registration/', RegisterUser.as_view(), name='registration'),
     path('logout/', Logout.as_view(), name='logout'),
     path('login/', AuthView.as_view(), name='login'),
     path('interfax/profile/<int:pk>/', UserProfileView.as_view(), name='profile'),
