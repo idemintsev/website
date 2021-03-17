@@ -6,17 +6,22 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse, reverse_lazy
-from django.views import generic
+from django.views import generic, View
 
 from news.forms import RegisterForm, CommentForm, NewsForm
 from news.models import Profile, News, Comment, Tag
 
 
-def register_user(request):
+class RegisterUser(View):
     """
     Регистрация пользователя
     """
-    if request.method == 'POST':
+
+    def get(self, request):
+        form = RegisterForm()
+        return render(request, 'users/registration.html', {'form': form})
+
+    def post(self, request):
         form = RegisterForm(request.POST)
         if form.is_valid():
             user = form.save()
@@ -32,9 +37,8 @@ def register_user(request):
             user = authenticate(username=username, password=raw_password)
             login(request, user)
             return redirect('interfax')
-    else:
-        form = RegisterForm()
-    return render(request, 'users/registration.html', {'form': form})
+        else:
+            return render(request, 'users/registration.html', {'form': form})
 
 
 class NewsListView(generic.ListView):
@@ -140,23 +144,23 @@ class NewsCreateFormView(PermissionRequiredMixin, generic.CreateView):
     template_name = 'news/create_news.html'
     permission_required = ('website.add_news', 'website.view_news')
 
-    def post(self, request, *args, **kwargs):
-        tags = request.POST.get('tags')
-        news_form = NewsForm(request.POST)
+    def form_valid(self, form):
+        tags = self.request.POST.get('tags')
+        news_form = NewsForm(self.request.POST)
         if news_form.is_valid():
             news = News(**news_form.cleaned_data)
             news.save()
-            self.increase_news_quantity(request)
+            self.increase_news_quantity(self.request)
             if len(tags):
                 tags_list = tags.split()
-                for _tag in tags_list:
-                    tag, created = Tag.objects.get_or_create(name=_tag)
+                for elem in tags_list:
+                    tag, _ = Tag.objects.get_or_create(name=elem)
                     news.tags.add(tag)
                     news.save()
             return HttpResponseRedirect(reverse('news_details', kwargs={'pk': news.id}))
 
         news = NewsForm()
-        return render(request, 'news/create_news.html', {'news': news})
+        return render(self.request, 'news/create_news.html', {'news': news})
 
     def increase_news_quantity(self, request):
         """
