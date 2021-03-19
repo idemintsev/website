@@ -146,17 +146,15 @@ class NewsCreateFormView(PermissionRequiredMixin, generic.CreateView):
 
     def form_valid(self, form):
         tags = self.request.POST.get('tags')
-        news_form = NewsForm(self.request.POST)
-        if news_form.is_valid():
-            news = News(**news_form.cleaned_data)
-            news.save()
-            self.increase_news_quantity(self.request)
-            if len(tags):
-                tags_list = tags.split()
-                for elem in tags_list:
-                    tag, _ = Tag.objects.get_or_create(name=elem)
-                    news.tags.add(tag)
-                    news.save()
+        news = News(**form.cleaned_data)
+        news.save()
+        self.increase_news_quantity(self.request)
+        if len(tags):
+            tags_list = tags.split()
+            for elem in tags_list:
+                tag, _ = Tag.objects.get_or_create(name=elem)
+                news.tags.add(tag)
+                news.save()
             return HttpResponseRedirect(reverse('news_details', kwargs={'pk': news.id}))
 
         news = NewsForm()
